@@ -1,7 +1,7 @@
 # managed-by=mohavise-pihole-adlist
 # project=mohavise-pihole-adlist
 # do-not-edit-manually
-# generated-at=2026-07-01 21:46:54 UTC
+# generated-at=2026-07-01 23:37:55 UTC
 0.0.logitechg.com.cn.obs.cn-north-1.myhuaweicloud.com
 0.0-02.net
 0.athwartwhoafat.com

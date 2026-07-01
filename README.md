@@ -1,8 +1,12 @@
 # Mohavise Pi-hole Adlist
 
-This project builds a clean Pi-hole adlist every day from upstream block sources.
+This project builds Pi-hole outputs from the shared Mohavise adblock core list.
 
-The first source is HaGeZi `light.txt`, a conservative starting point. After testing, you can change `config/sources.txt` to HaGeZi `multi.txt` or `pro.txt` for stronger blocking.
+Source and allowlist changes are managed in the core repo:
+
+```text
+https://github.com/mohavise/mohavise-adblock-core
+```
 
 ## Daily Timing
 
@@ -28,10 +32,7 @@ pihole -g
 | --- | --- |
 | `pihole-adlist.txt` | Final generated Pi-hole domain list |
 | `pihole-hosts.txt` | Optional hosts-format output |
-| `config/sources.txt` | Upstream blocklist URLs |
-| `config/allowlist-core.txt` | Domains that must not be blocked |
-| `config/blocklist-custom.txt` | Your own blocked domains |
-| `scripts/build-pihole-adlist.ps1` | Builds the final Pi-hole files |
+| `scripts/build-pihole-adlist.ps1` | Downloads the core list and builds the final Pi-hole files |
 
 ## Marker
 
@@ -46,4 +47,3 @@ managed-by=mohavise-pihole-adlist
 ```text
 upstream sources + custom blocklist - allowlist = final Pi-hole adlist
 ```
-

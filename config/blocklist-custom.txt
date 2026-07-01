@@ -1,5 +1,0 @@
-# managed-by=mohavise-pihole-adlist
-# purpose=custom-blocklist
-#
-# Add your own domains here, one per line.
-
