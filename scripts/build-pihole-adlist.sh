@@ -6,6 +6,7 @@ REPO_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
 CORE_URL="${CORE_URL:-https://raw.githubusercontent.com/mohavise/mohavise-adblock-core/main/core-domains.txt}"
 DOMAIN_OUTPUT_FILE="${DOMAIN_OUTPUT_FILE:-$REPO_DIR/pihole-adlist.txt}"
+MIN_DOMAIN_COUNT="${MIN_DOMAIN_COUNT:-10000}"
 
 TMP_FILE="$(mktemp)"
 trap 'rm -f "$TMP_FILE"' EXIT
@@ -24,6 +25,12 @@ fi |
     ' |
     sort -u > "$TMP_FILE"
 
+domain_count="$(wc -l < "$TMP_FILE" | tr -d ' ')"
+if (( domain_count < MIN_DOMAIN_COUNT )); then
+    echo "Core domain count $domain_count is below minimum $MIN_DOMAIN_COUNT; refusing to overwrite $DOMAIN_OUTPUT_FILE." >&2
+    exit 1
+fi
+
 {
     echo "# managed-by=mohavise-pihole-adlist"
     echo "# project=mohavise-pihole-adlist"
@@ -32,6 +39,4 @@ fi |
     cat "$TMP_FILE"
 } > "$DOMAIN_OUTPUT_FILE"
 
-domain_count="$(wc -l < "$TMP_FILE" | tr -d ' ')"
 echo "Generated $DOMAIN_OUTPUT_FILE with $domain_count blocked domains."
-
