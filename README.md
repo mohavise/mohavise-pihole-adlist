@@ -31,7 +31,13 @@ pihole -g
 | File | Purpose |
 | --- | --- |
 | `pihole-adlist.txt` | Final generated Pi-hole domain list |
-| `scripts/build-pihole-adlist.ps1` | Downloads the core list and builds the final Pi-hole files |
+| `scripts/build-pihole-adlist.sh` | Downloads the core list and builds the final Pi-hole files |
+
+## Build
+
+```bash
+./scripts/build-pihole-adlist.sh
+```
 
 ## Marker
 
