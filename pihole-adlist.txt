@@ -1,7 +1,7 @@
 # managed-by=mohavise-pihole-adlist
 # project=mohavise-pihole-adlist
 # do-not-edit-manually
-# generated-at=2026-07-05 09:48:03 UTC
+# generated-at=2026-07-06 14:07:44 UTC
 0-0-0checkmate.com
 0.0-02.net
 0.0.logitechg.com.cn.obs.cn-north-1.myhuaweicloud.com
