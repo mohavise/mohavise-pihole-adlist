@@ -24,7 +24,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pihole-adlist.txt
+          git add pihole-adlist.txt pihole-adblock-adlist.txt pihole-adult-adlist.txt
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
