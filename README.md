@@ -151,3 +151,9 @@ core-adblock-domains.txt → pihole-adblock-adlist.txt
 core-adult-domains.txt   → pihole-adult-adlist.txt
 core-domains.txt         → pihole-adlist.txt
 ```
+
+## Cleanup Policy
+
+Before removing any file from this repository, read `CLEANUP_POLICY.md`.
+
+Generated outputs, compatibility files, workflows, and scripts are intentional parts of the process. Do not delete them only because they look duplicated, old, large, or generated.
