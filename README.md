@@ -2,7 +2,7 @@
 
 This repository is the Pi-hole child/output repo of the main Mohavise adblock core project.
 
-It builds a Pi-hole-ready adlist from the shared core domain list.
+It builds Pi-hole-ready adlist outputs from the validated parent core lists.
 Source lists, upstream changes, custom blocks, allowlists, and data validation are managed in the parent core repo:
 
 ```text
@@ -23,22 +23,50 @@ Pi-hole Gravity
 
 GitHub Actions runs at `00:00 UTC`, which is `03:30 Asia/Tehran`.
 
-## Materials / Output Files
+Pi-hole updates whenever you run Gravity manually or through your own Pi-hole schedule.
 
-This repo has one final Pi-hole material:
+## Output Strategy
+
+This repo now supports separate endpoint lists.
+
+```text
+adblock list = ads / trackers
+adult list   = adult / NSFW domains
+combined     = adblock + adult together
+```
+
+For normal production use, add both separate URLs to Pi-hole:
+
+```text
+pihole-adblock-adlist.txt
+pihole-adult-adlist.txt
+```
+
+This lets Pi-hole show and manage the two categories separately.
+
+## Materials / Output Files
 
 | File | Format | Main Use |
 | --- | --- | --- |
-| `pihole-adlist.txt` | Plain domain list, one domain per line | Main file used by Pi-hole Adlists / Gravity |
+| `pihole-adblock-adlist.txt` | Plain domain list, one domain per line | Pi-hole adlist for ads / trackers |
+| `pihole-adult-adlist.txt` | Plain domain list, one domain per line | Pi-hole adlist for adult / NSFW domains |
+| `pihole-adlist.txt` | Plain domain list, one domain per line | Compatibility combined list for old/simple installs |
 
-The parent repo is responsible for cleaning and validating the data before this repo builds the Pi-hole output.
+Simple explanation:
+
+```text
+pihole-adblock-adlist.txt = main adblock list
+pihole-adult-adlist.txt   = main adult list
+pihole-adlist.txt         = old combined compatibility list
+```
 
 ## Use In Pi-hole
 
-Add this URL to Pi-hole Adlists:
+Add these two URLs to Pi-hole Adlists:
 
 ```text
-https://raw.githubusercontent.com/mohavise/mohavise-pihole-adlist/main/pihole-adlist.txt
+https://raw.githubusercontent.com/mohavise/mohavise-pihole-adlist/main/pihole-adblock-adlist.txt
+https://raw.githubusercontent.com/mohavise/mohavise-pihole-adlist/main/pihole-adult-adlist.txt
 ```
 
 Then update gravity from the Pi-hole web UI, or run:
@@ -47,18 +75,39 @@ Then update gravity from the Pi-hole web UI, or run:
 pihole -g
 ```
 
+## Optional Combined URL
+
+Use this only if you want one simple combined list instead of two separate lists:
+
+```text
+https://raw.githubusercontent.com/mohavise/mohavise-pihole-adlist/main/pihole-adlist.txt
+```
+
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| `pihole-adlist.txt` | Final generated Pi-hole domain list |
-| `scripts/build-pihole-adlist.sh` | Downloads the core list and builds the final Pi-hole file |
+| `pihole-adblock-adlist.txt` | Final generated Pi-hole adblock category list |
+| `pihole-adult-adlist.txt` | Final generated Pi-hole adult category list |
+| `pihole-adlist.txt` | Final generated combined compatibility list |
+| `scripts/build-pihole-adlist.sh` | Downloads category core lists and builds Pi-hole outputs |
+| `.github/workflows/update-pihole-adlist.yml` | Daily GitHub Actions build workflow |
 
 ## Build
 
 ```bash
 ./scripts/build-pihole-adlist.sh
 ```
+
+The build script reads:
+
+```text
+core-domains.txt
+core-adblock-domains.txt
+core-adult-domains.txt
+```
+
+and generates Pi-hole-ready combined, adblock-only, and adult-only outputs.
 
 ## Signature
 
@@ -74,8 +123,8 @@ The signature makes future updates safer because generated outputs can be clearl
 ## Update-Ready Approach
 
 ```text
-Parent/core repo validates and publishes the canonical list.
-Child repo converts the canonical list into a Pi-hole-ready output.
+Parent/core repo validates and publishes category lists.
+Child repo converts category lists into Pi-hole-ready outputs.
 Pi-hole refreshes the final output through Gravity.
 Managed items are marked with a clear signature.
 Future changes should update managed outputs only, not unrelated user configuration.
@@ -84,20 +133,21 @@ Future changes should update managed outputs only, not unrelated user configurat
 ## Future Vision
 
 ```text
-One clean parent list.
-Multiple child outputs.
-Same structure.
+One clean parent system.
+Separate category outputs.
+Multiple child platform outputs.
 Same timing.
 Same signature style.
 Safe daily updates.
-Easy rollback and future platform expansion.
+Easy rollback and future category expansion.
 ```
 
-Planned child/output targets can include MikroTik, Pi-hole, FortiGate, and other DNS/security platforms that can consume domain feeds.
+Planned future categories can include malware, gambling, social media, crypto, telemetry, and other DNS/security feeds.
 
 ## Logic
 
 ```text
-mohavise-adblock-core/core-domains.txt = validated canonical source
-mohavise-pihole-adlist/pihole-adlist.txt = Pi-hole-ready output
+core-adblock-domains.txt → pihole-adblock-adlist.txt
+core-adult-domains.txt   → pihole-adult-adlist.txt
+core-domains.txt         → pihole-adlist.txt
 ```
