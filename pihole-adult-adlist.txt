@@ -1,7 +1,7 @@
 # managed-by=mohavise-pihole-adlist
 # project=mohavise-pihole-adlist
 # do-not-edit-manually
-# generated-at=2026-07-13 03:33:48 UTC
+# generated-at=2026-07-14 02:55:05 UTC
 0.oldgyhogola.com
 0.xd-cdn.com
 0.xxx-cdn.com
