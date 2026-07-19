@@ -1,15 +1,6 @@
 # Mohavise Pi-hole Adlist
 
-This repository is the Pi-hole child/output repo of the main Mohavise adblock core project.
-
-It builds Pi-hole-ready adlist outputs from the validated parent core lists.
-Source lists, upstream changes, custom blocks, allowlists, and data validation are managed in the parent core repo:
-
-```text
-https://github.com/mohavise/mohavise-adblock-core
-```
-
-## Relationship
+Pi-hole-ready domain lists generated from the validated parent repository:
 
 ```text
 mohavise-adblock-core
@@ -19,87 +10,51 @@ mohavise-pihole-adlist
 Pi-hole Gravity
 ```
 
-## Daily Timing
-
-GitHub Actions runs at `00:00 UTC`, which is `03:30 Asia/Tehran`.
-
-Pi-hole updates whenever you run Gravity manually or through your own Pi-hole schedule.
-
-## Output Strategy
-
-This repo now supports separate endpoint lists.
+Source management, allowlists, custom blocks, and upstream validation are handled in:
 
 ```text
-adblock list = ads / trackers
-adult list   = adult / NSFW domains
-combined     = adblock + adult together
+https://github.com/mohavise/mohavise-adblock-core
 ```
 
-For normal production use, add both separate URLs to Pi-hole:
+## Output Files
 
-```text
-pihole-adblock-adlist.txt
-pihole-adult-adlist.txt
-```
+| File | Purpose |
+| --- | --- |
+| `pihole-adblock-adlist.txt` | Ads and trackers |
+| `pihole-adult-adlist.txt` | Optional adult/NSFW blocking |
+| `pihole-adlist.txt` | Combined compatibility list |
 
-This lets Pi-hole show and manage the two categories separately.
+## Recommended Pi-hole Setup
 
-## Materials / Output Files
-
-| File | Format | Main Use |
-| --- | --- | --- |
-| `pihole-adblock-adlist.txt` | Plain domain list, one domain per line | Pi-hole adlist for ads / trackers |
-| `pihole-adult-adlist.txt` | Plain domain list, one domain per line | Pi-hole adlist for adult / NSFW domains |
-| `pihole-adlist.txt` | Plain domain list, one domain per line | Compatibility combined list for old/simple installs |
-
-Simple explanation:
-
-```text
-pihole-adblock-adlist.txt = main adblock list
-pihole-adult-adlist.txt   = main adult list
-pihole-adlist.txt         = old combined compatibility list
-```
-
-## Use In Pi-hole
-
-Add these two URLs to Pi-hole Adlists:
+Add the normal adblock list:
 
 ```text
 https://raw.githubusercontent.com/mohavise/mohavise-pihole-adlist/main/pihole-adblock-adlist.txt
+```
+
+Add the adult list only when adult/NSFW blocking is required:
+
+```text
 https://raw.githubusercontent.com/mohavise/mohavise-pihole-adlist/main/pihole-adult-adlist.txt
 ```
 
-Then update gravity from the Pi-hole web UI, or run:
-
-```bash
-pihole -g
-```
-
-## Optional Combined URL
-
-Use this only if you want one simple combined list instead of two separate lists:
+Use the combined list only when you prefer one endpoint instead of separate categories:
 
 ```text
 https://raw.githubusercontent.com/mohavise/mohavise-pihole-adlist/main/pihole-adlist.txt
 ```
 
-## Files
+Do not add the combined list together with the two separate lists because that duplicates the same domains in Pi-hole.
 
-| File | Purpose |
-| --- | --- |
-| `pihole-adblock-adlist.txt` | Final generated Pi-hole adblock category list |
-| `pihole-adult-adlist.txt` | Final generated Pi-hole adult category list |
-| `pihole-adlist.txt` | Final generated combined compatibility list |
-| `scripts/build-pihole-adlist.sh` | Downloads category core lists and builds Pi-hole outputs |
-| `.github/workflows/update-pihole-adlist.yml` | Daily GitHub Actions build workflow |
-
-## Build
+After adding or changing an Adlist, update Gravity from the Pi-hole web interface or run:
 
 ```bash
-./scripts/build-pihole-adlist.sh
+pihole -g
 ```
 
-The build script reads:
+## Build and Validation
+
+The daily workflow reads:
 
 ```text
 core-domains.txt
@@ -107,53 +62,60 @@ core-adblock-domains.txt
 core-adult-domains.txt
 ```
 
-and generates Pi-hole-ready combined, adblock-only, and adult-only outputs.
-
-## Signature
-
-Generated items use this signature:
+The build process performs:
 
 ```text
-managed-by=mohavise-pihole-adlist
-project=mohavise-pihole-adlist
+Secure HTTPS download with retries and timeouts
+→ lowercase normalization and duplicate removal
+→ strict domain syntax validation
+→ IP-address rejection
+→ minimum-count checks
+→ adblock/adult subset checks against the combined list
+→ 20% sudden-drop protection against current published outputs
+→ deterministic output generation
+→ commit only when content changes
 ```
 
-The signature makes future updates safer because generated outputs can be clearly identified as managed by this project.
+A failed validation stops the workflow before any generated output is committed.
 
-## Update-Ready Approach
+Run the build locally with:
+
+```bash
+./scripts/build-pihole-adlist.sh
+```
+
+## Daily Automation
+
+GitHub Actions runs at:
 
 ```text
-Parent/core repo validates and publishes category lists.
-Child repo converts category lists into Pi-hole-ready outputs.
-Pi-hole refreshes the final output through Gravity.
-Managed items are marked with a clear signature.
-Future changes should update managed outputs only, not unrelated user configuration.
+00:00 UTC
 ```
 
-## Future Vision
+Pi-hole downloads the latest published list whenever Gravity runs. Configure the Gravity schedule on the Pi-hole device according to your own maintenance window.
+
+The workflow includes concurrency protection, a 15-minute timeout, and rebases before pushing to reduce scheduled-run conflicts.
+
+## Managed Signature
+
+Generated files begin with:
 
 ```text
-One clean parent system.
-Separate category outputs.
-Multiple child platform outputs.
-Same timing.
-Same signature style.
-Safe daily updates.
-Easy rollback and future category expansion.
+# managed-by=mohavise-pihole-adlist
+# project=mohavise-pihole-adlist
+# do-not-edit-manually
 ```
 
-Planned future categories can include malware, gambling, social media, crypto, telemetry, and other DNS/security feeds.
+## Repository Files
 
-## Logic
-
-```text
-core-adblock-domains.txt → pihole-adblock-adlist.txt
-core-adult-domains.txt   → pihole-adult-adlist.txt
-core-domains.txt         → pihole-adlist.txt
-```
+| File | Purpose |
+| --- | --- |
+| `scripts/build-pihole-adlist.sh` | Downloads, validates, and generates Pi-hole outputs |
+| `.github/workflows/update-pihole-adlist.yml` | Daily automated build and commit workflow |
+| `pihole-adblock-adlist.txt` | Normal adblock endpoint |
+| `pihole-adult-adlist.txt` | Optional adult endpoint |
+| `pihole-adlist.txt` | Combined compatibility endpoint |
 
 ## Cleanup Policy
 
-Before removing any file from this repository, read `CLEANUP_POLICY.md`.
-
-Generated outputs, compatibility files, workflows, and scripts are intentional parts of the process. Do not delete them only because they look duplicated, old, large, or generated.
+Before removing repository files, read `CLEANUP_POLICY.md`. Generated outputs, compatibility files, workflows, and scripts are intentional parts of this project.
